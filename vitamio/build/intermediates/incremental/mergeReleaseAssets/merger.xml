@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger version="3"><dataSet config="main"><source path="E:\cf1\test_video7\vitamio\src\main\assets"/><source path="E:\cf1\test_video7\vitamio\build\generated\assets\shaders\release"/></dataSet><dataSet config="release"><source path="E:\cf1\test_video7\vitamio\src\release\assets"/></dataSet></merger>
