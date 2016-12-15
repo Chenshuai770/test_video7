@@ -149,8 +149,7 @@ public class MediaController extends FrameLayout {
    * 进度条开始改变
    */
   public void onStartSeekBar() {
-    if (mAM == null)
-      return;
+    if (mAM == null) return;
     mDragging = true;
     show(3600000);
     mHandler.removeMessages(SHOW_PROGRESS);

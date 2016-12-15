@@ -6,6 +6,7 @@ import android.graphics.Point;
 import android.media.AudioManager;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
@@ -221,6 +222,7 @@ public class MyMediaController extends MediaController {
      * @param percent
      */
     private void onSeekTo(float percent) {
+        Log.d("TGG",percent+"");
         //计算并显示 前进后退
         if (!progress_turn) {
             onStartSeekBar();

@@ -15,7 +15,17 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -27,8 +37,8 @@ import io.vov.vitamio.widget.VideoView;
  * Created by chenshuai on 2016/12/14.
  */
 
-public class PlayActivity extends Activity{
-    public static  final String TAG = "PlayActivity";
+public class PlayActivity extends Activity implements View.OnClickListener {
+    public static final String TAG = "PlayActivity";
 
     private VideoView mVideoView;
     private MediaController mMediaController;
@@ -36,9 +46,12 @@ public class PlayActivity extends Activity{
 
     //  String path1 = Environment.getExternalStorageDirectory() + "/Download/eva.mkv";
     private String path1 = Environment.getExternalStorageDirectory() + "/ABC/123.mp4";
-    private Uri path2= Uri.parse("http://112.253.22.157/17/z/z/y/u/zzyuasjwufnqerzvyxgkuigrkcatxr/hc.yinyuetai.com/D046015255134077DDB3ACA0D7E68D45.flv");
+    private final static String NETURL="http://112.253.22.157/17/z/z/y/u/zzyuasjwufnqerzvyxgkuigrkcatxr/hc.yinyuetai.com/D046015255134077DDB3ACA0D7E68D45.flv";
+    //private final static String NETURL="http://mp44.ludashi8.info/OAPKY3v.mp4";
+    private Uri path2 = Uri.parse(NETURL);
     private static final int TIME = 0;
     private static final int BATTERY = 1;
+    private static final int LOADING=2;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -50,9 +63,18 @@ public class PlayActivity extends Activity{
                 case BATTERY:
                     myMediaController.setBattery(msg.obj.toString());
                     break;
+                case LOADING:
+                    Toast.makeText(PlayActivity.this, "文件已经下在BBB里面", Toast.LENGTH_SHORT).show();
+                    break;
             }
         }
     };
+    private TextView mBufferPercent;
+    private TextView mNetSpeed;
+    private Button mBtnDownload;
+    private long duration;
+    private int progress;
+    private static long currentPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,19 +88,65 @@ public class PlayActivity extends Activity{
 
         toggleHideyBar();
         setContentView(R.layout.activity_paly);
+        initView();
+        //缓冲和显示速度
+        mBufferPercent = (TextView) findViewById(R.id.buffer_percent);
+        mNetSpeed = (TextView) findViewById(R.id.net_speed);
 
         mVideoView = (VideoView) findViewById(R.id.surface_view);
-       //mVideoView.setVideoPath(path1);
+
+        //mVideoView.setVideoPath(path1);
         mVideoView.setVideoURI(path2);
         mMediaController = new MediaController(this);
         myMediaController = new MyMediaController(this, mVideoView, this);
+
         mMediaController.show(5000);
+
 
         mVideoView.setMediaController(myMediaController);
         mVideoView.setVideoQuality(MediaPlayer.VIDEOQUALITY_HIGH);//高画质
         mVideoView.requestFocus();
+
+        //myMediaController.setSeekBarChange(50);
+       // mVideoView.seekTo(50);
+
+
+
+
+        //设置缓冲比
+        mVideoView.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
+            @Override
+            public void onBufferingUpdate(MediaPlayer mp, int percent) {
+                mBufferPercent.setText("已缓冲:" + percent + "%");
+            }
+        });
+        //设置显示速度
+        mVideoView.setOnInfoListener(new MediaPlayer.OnInfoListener() {
+            @Override
+            public boolean onInfo(MediaPlayer mp, int what, int extra) {
+                switch (what) {
+                    //开始缓冲
+                    case MediaPlayer.MEDIA_INFO_BUFFERING_START:
+                        mBufferPercent.setVisibility(View.VISIBLE);
+                        mNetSpeed.setVisibility(View.VISIBLE);
+                        mp.pause();
+                        break;
+                    //缓冲结束
+                    case MediaPlayer.MEDIA_INFO_BUFFERING_END:
+                        mBufferPercent.setVisibility(View.GONE);
+                        mNetSpeed.setVisibility(View.GONE);
+                        mp.start();
+                        break;
+                    //正在缓冲
+                    case MediaPlayer.MEDIA_INFO_DOWNLOAD_RATE_CHANGED:
+                        mNetSpeed.setText("当前网速:" + extra + "kb/s");
+                        break;
+                }
+                return true;
+            }
+        });
         //画面是否拉伸
-//        mVideoView.setVideoLayout(VideoView.VIDEO_LAYOUT_STRETCH, 16/9 );
+      //mVideoView.setVideoLayout(VideoView.VIDEO_LAYOUT_STRETCH, 16/9 );
         registerBoradcastReceiver();
         new Thread(new Runnable() {
             @Override
@@ -101,6 +169,30 @@ public class PlayActivity extends Activity{
         }).start();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        currentPosition = mVideoView.getCurrentPosition();
+        Log.d("TGG", "onPause: "+ currentPosition);
+         mVideoView.pause();
+    }
+
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                 long duration = (long) (mVideoView.getDuration()/3);
+                Log.d("TGG", "onPrepared: "+currentPosition);
+                mp.seekTo(currentPosition);
+            }
+        });
+        mVideoView.start();
+
+    }
 
     @Override
     protected void onDestroy() {
@@ -115,7 +207,7 @@ public class PlayActivity extends Activity{
     private BroadcastReceiver batteryBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(Intent.ACTION_BATTERY_CHANGED.equals(intent.getAction())){
+            if (Intent.ACTION_BATTERY_CHANGED.equals(intent.getAction())) {
                 //获取当前电量
                 int level = intent.getIntExtra("level", 0);
                 //电量的总刻度
@@ -123,7 +215,7 @@ public class PlayActivity extends Activity{
                 //把它转成百分比
                 //tv.setText("电池电量为"+((level*100)/scale)+"%");
                 Message msg = new Message();
-                msg.obj = (level*100)/scale+"";
+                msg.obj = (level * 100) / scale + "";
                 msg.what = BATTERY;
                 mHandler.sendMessage(msg);
             }
@@ -180,4 +272,56 @@ public class PlayActivity extends Activity{
         //END_INCLUDE (set_ui_flags)
     }
 
+
+    private void initView() {
+        mBtnDownload = (Button) findViewById(R.id.btn_download);
+
+        mBtnDownload.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btn_download:
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            File file = new File(Environment.getExternalStorageDirectory() + File.separator + "BBB");
+                            if (!file.exists()){
+                                file.mkdirs();
+                            }
+                            long time = System.nanoTime();
+                            File netfile=new File(file.getAbsoluteFile()+ File.separator+"test"+time+".flv");
+                            URL url = new URL(NETURL);
+                            HttpURLConnection coon = (HttpURLConnection) url.openConnection();
+                            coon.setRequestMethod("GET");
+                            coon.setConnectTimeout(5*1000);
+                            coon.connect();
+                            InputStream inputStream = coon.getInputStream();
+                            byte[] buffer = new byte[1024];
+                            FileOutputStream fileOutputStream = new FileOutputStream(netfile);
+                            int len;
+                            while ((len=inputStream.read())!=-1){
+                                fileOutputStream.write(buffer,0,len);
+                            }
+                            fileOutputStream.close();
+                            inputStream.close();
+                            Message message = new Message();
+                            message.what=LOADING;
+                            mHandler.sendMessage(message);
+
+                        } catch (MalformedURLException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }).start();
+                mBtnDownload.setVisibility(View.GONE);
+
+                break;
+        }
+    }
 }
