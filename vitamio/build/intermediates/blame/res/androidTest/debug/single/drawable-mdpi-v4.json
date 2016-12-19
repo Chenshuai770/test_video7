@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "E:\\cf1\\test_video7\\vitamio\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable-mdpi-v4\\ic_launcher.png",
+        "source": "E:\\cf1\\test_video7\\vitamio\\build\\intermediates\\bundles\\debug\\res\\drawable-mdpi-v4\\ic_launcher.png"
+    },
+    {
+        "merged": "E:\\cf2\\MyApplication\\MyApplication\\vitamio\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable-mdpi-v4\\ic_launcher.png",
+        "source": "E:\\cf2\\MyApplication\\MyApplication\\vitamio\\build\\intermediates\\bundles\\debug\\res\\drawable-mdpi-v4\\ic_launcher.png"
+    }
+]

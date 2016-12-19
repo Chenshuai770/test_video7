@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "E:\\cf1\\test_video7\\vitamio\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable\\mediacontroller_button.xml",
+        "source": "E:\\cf1\\test_video7\\vitamio\\build\\intermediates\\bundles\\debug\\res\\drawable\\mediacontroller_button.xml"
+    },
+    {
+        "merged": "E:\\cf1\\test_video7\\vitamio\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable\\scrubber_control_selector_holo.xml",
+        "source": "E:\\cf1\\test_video7\\vitamio\\build\\intermediates\\bundles\\debug\\res\\drawable\\scrubber_control_selector_holo.xml"
+    },
+    {
+        "merged": "E:\\cf2\\MyApplication\\MyApplication\\vitamio\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable\\mediacontroller_button.xml",
+        "source": "E:\\cf2\\MyApplication\\MyApplication\\vitamio\\build\\intermediates\\bundles\\debug\\res\\drawable\\mediacontroller_button.xml"
+    },
+    {
+        "merged": "E:\\cf2\\MyApplication\\MyApplication\\vitamio\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable\\scrubber_progress_horizontal_holo_dark.xml",
+        "source": "E:\\cf2\\MyApplication\\MyApplication\\vitamio\\build\\intermediates\\bundles\\debug\\res\\drawable\\scrubber_progress_horizontal_holo_dark.xml"
+    },
+    {
+        "merged": "E:\\cf1\\test_video7\\vitamio\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable\\scrubber_progress_horizontal_holo_dark.xml",
+        "source": "E:\\cf1\\test_video7\\vitamio\\build\\intermediates\\bundles\\debug\\res\\drawable\\scrubber_progress_horizontal_holo_dark.xml"
+    },
+    {
+        "merged": "E:\\cf2\\MyApplication\\MyApplication\\vitamio\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable\\scrubber_control_selector_holo.xml",
+        "source": "E:\\cf2\\MyApplication\\MyApplication\\vitamio\\build\\intermediates\\bundles\\debug\\res\\drawable\\scrubber_control_selector_holo.xml"
+    }
+]
