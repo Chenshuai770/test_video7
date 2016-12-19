@@ -43,29 +43,13 @@ public class PlayActivity extends Activity implements View.OnClickListener {
     private VideoView mVideoView;
     private MediaController mMediaController;
     private MyMediaController myMediaController;
-    private String[] path3={
-            "http://mp4.ludashi1.info/O63DNZb.mp4",
-            "http://mp4.ludashi1.info/O63DNZb.mp4",
-            "http://mp4.ludashi1.info/O63D5Kr.mp4",
-            "http://mp4.ludashi1.info/O657DHa.mp4",
-            "http://mp4.ludashi1.info/O657HDr.mp4",
-            "http://mp4.ludashi1.info/O63EK2p.mp4",
-            "http://mp4.ludashi1.info/O68WCOn.mp4",
-            "http://mp4.ludashi1.info/O68WRRf.mp4",
-            "http://mp4.ludashi1.info/O5ZN06e.mp4",
-            "http://mp4.ludashi1.info/O6COE8g.mp4",
-            "http://mp4.ludashi1.info/O6COK5k.mp4",
-            "http://mp4.ludashi1.info/O5ZMMYy.mp4",
-            "http://mp4.ludashi1.info/O5XVG6b.mp4",
-            "http://wpwp-1.bbbplayer.com/da-16-10-11-skyla-novea-when-a.mp4",
-            "http://112.253.22.157/17/z/z/y/u/zzyuasjwufnqerzvyxgkuigrkcatxr/hc.yinyuetai.com/D046015255134077DDB3ACA0D7E68D45.flv"};
 
     //  String path1 = Environment.getExternalStorageDirectory() + "/Download/eva.mkv";
     private String path1 = Environment.getExternalStorageDirectory() + "/ABC/123.mp4";
 
-    private  String NETURL;
-    //private  String NETURL="http://112.253.22.157/17/z/z/y/u/zzyuasjwufnqerzvyxgkuigrkcatxr/hc.yinyuetai.com/D046015255134077DDB3ACA0D7E68D45.flv";
-    //private final static String NETURL="http://mp44.ludashi8.info/OAPKY3v.mp4";
+
+   // private  String NETURL="http://112.253.22.157/17/z/z/y/u/zzyuasjwufnqerzvyxgkuigrkcatxr/hc.yinyuetai.com/D046015255134077DDB3ACA0D7E68D45.flv";
+    private String NETURL;
     private Uri path2;
     private static final int TIME = 0;
     private static final int BATTERY = 1;
@@ -106,8 +90,9 @@ public class PlayActivity extends Activity implements View.OnClickListener {
 
         toggleHideyBar();
         setContentView(R.layout.activity_paly);
+        Intent intent = getIntent();
+        NETURL= intent.getStringExtra("url");
 
-        NETURL="http://mp4.ludashi1.info/O63DNZb.mp4";
         path2= Uri.parse(NETURL);
         initView();
         //缓冲和显示速度
@@ -122,8 +107,11 @@ public class PlayActivity extends Activity implements View.OnClickListener {
         myMediaController = new MyMediaController(this, mVideoView, this);
 
         mMediaController.show(5000);
-
-
+/**
+ * VIDEO_LAYOUT_SCALE一条直线
+ * VIDEO_LAYOUT_ZOOM压缩播放
+ */
+        mVideoView.setVideoLayout(VideoView.VIDEO_LAYOUT_ZOOM,0.001f);
         mVideoView.setMediaController(myMediaController);
         mVideoView.setVideoQuality(MediaPlayer.VIDEOQUALITY_HIGH);//高画质
         mVideoView.requestFocus();

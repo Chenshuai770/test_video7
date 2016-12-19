@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:configChanges="orientation|keyboardHidden|screenSize"
-        android:screenOrientation="sensorLandscape">
+        android:screenOrientation="portrait">
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
