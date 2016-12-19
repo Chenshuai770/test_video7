@@ -61,9 +61,6 @@ public class MyMediaController extends MediaController {
     private float mBrightness = -1f;
 
 
-
-
-
     private Handler myHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -76,7 +73,6 @@ public class MyMediaController extends MediaController {
             }
         }
     };
-
 
     //videoview 用于对视频进行控制的等，activity为了退出
     public MyMediaController(Context context, VideoView videoView , Activity activity) {
