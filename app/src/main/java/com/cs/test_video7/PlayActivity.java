@@ -5,6 +5,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,6 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import io.vov.vitamio.MediaPlayer;
+import io.vov.vitamio.ThumbnailUtils;
 import io.vov.vitamio.widget.MediaController;
 import io.vov.vitamio.widget.VideoView;
 
@@ -48,7 +51,7 @@ public class PlayActivity extends Activity implements View.OnClickListener {
     private String path1 = Environment.getExternalStorageDirectory() + "/ABC/123.mp4";
 
 
-   // private  String NETURL="http://112.253.22.157/17/z/z/y/u/zzyuasjwufnqerzvyxgkuigrkcatxr/hc.yinyuetai.com/D046015255134077DDB3ACA0D7E68D45.flv";
+    //private  String NETURL="http://112.253.22.157/17/z/z/y/u/zzyuasjwufnqerzvyxgkuigrkcatxr/hc.yinyuetai.com/D046015255134077DDB3ACA0D7E68D45.flv";
     private String NETURL;
     private Uri path2;
     private static final int TIME = 0;
@@ -74,8 +77,7 @@ public class PlayActivity extends Activity implements View.OnClickListener {
     private TextView mBufferPercent;
     private TextView mNetSpeed;
     private Button mBtnDownload;
-    private long duration;
-    private int progress;
+
     private static long currentPosition;
 
     @Override
@@ -105,22 +107,31 @@ public class PlayActivity extends Activity implements View.OnClickListener {
         mVideoView.setVideoURI(path2);
         mMediaController = new MediaController(this);
         myMediaController = new MyMediaController(this, mVideoView, this);
-
         mMediaController.show(5000);
 /**
- * VIDEO_LAYOUT_SCALE一条直线
- * VIDEO_LAYOUT_ZOOM压缩播放
+ * public static final int VIDEO_LAYOUT_ORIGIN
+ 缩放参数，原始画面大小。
+ 常量值：0
+
+ public static final int VIDEO_LAYOUT_SCALE
+ 缩放参数，画面全屏。
+ 常量值：1
+
+ public static final int VIDEO_LAYOUT_STRETCH
+ 缩放参数，画面拉伸。
+ 常量值：2
+
+ public static final int VIDEO_LAYOUT_ZOOM
+ 缩放参数，画面裁剪。
+ 常量值：3
  */
-        mVideoView.setVideoLayout(VideoView.VIDEO_LAYOUT_ZOOM,0.001f);
+        //画面是否拉伸
+        mVideoView.setVideoLayout(VideoView.VIDEO_LAYOUT_STRETCH, 16/9 );
+        //mVideoView.setVideoLayout(VideoView.VIDEO_LAYOUT_ZOOM,0.001f);
+        //mVideoView.setVideoLayout(VideoView.VIDEO_LAYOUT_ZOOM,0.001f);
         mVideoView.setMediaController(myMediaController);
         mVideoView.setVideoQuality(MediaPlayer.VIDEOQUALITY_HIGH);//高画质
         mVideoView.requestFocus();
-
-        //myMediaController.setSeekBarChange(50);
-       // mVideoView.seekTo(50);
-
-
-
 
         //设置缓冲比
         mVideoView.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
@@ -129,6 +140,7 @@ public class PlayActivity extends Activity implements View.OnClickListener {
                 mBufferPercent.setText("已缓冲:" + percent + "%");
             }
         });
+
         //设置显示速度
         mVideoView.setOnInfoListener(new MediaPlayer.OnInfoListener() {
             @Override
@@ -154,8 +166,8 @@ public class PlayActivity extends Activity implements View.OnClickListener {
                 return true;
             }
         });
-        //画面是否拉伸
-      //mVideoView.setVideoLayout(VideoView.VIDEO_LAYOUT_STRETCH, 16/9 );
+
+
         registerBoradcastReceiver();
         new Thread(new Runnable() {
             @Override
@@ -177,6 +189,30 @@ public class PlayActivity extends Activity implements View.OnClickListener {
             }
         }).start();
     }
+    public Bitmap getVideoThumbnail(String filePath) {
+        Bitmap bitmap = null;
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        try {
+            retriever.setDataSource(filePath);
+            bitmap = retriever.getFrameAtTime();
+        }
+        catch(IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+        catch (RuntimeException e) {
+            e.printStackTrace();
+        }
+        finally {
+            try {
+                retriever.release();
+            }
+            catch (RuntimeException e) {
+                e.printStackTrace();
+            }
+        }
+        return bitmap;
+    }
+
 
     @Override
     protected void onPause() {
@@ -184,6 +220,50 @@ public class PlayActivity extends Activity implements View.OnClickListener {
         currentPosition = mVideoView.getCurrentPosition();
         Log.d("TGG", "onPause: "+ currentPosition);
          mVideoView.pause();
+    }
+
+
+    /**
+     * 获取视频的缩略图
+     * 先通过ThumbnailUtils来创建一个视频的缩略图，然后再利用ThumbnailUtils来生成指定大小的缩略图。
+     * 如果想要的缩略图的宽和高都小于MICRO_KIND，则类型要使用MICRO_KIND作为kind的值，这样会节省内存。
+     * @param videoPath 视频的路径
+     * @param width 指定输出视频缩略图的宽度
+     * @param height 指定输出视频缩略图的高度度
+     * @param kind 参照MediaStore.Images.Thumbnails类中的常量MINI_KIND和MICRO_KIND。
+     *            其中，MINI_KIND: 512 x 384，MICRO_KIND: 96 x 96
+     * @return 指定大小的视频缩略图
+     */
+    private Bitmap getVideoThumbnail(String videoPath, int width, int height,
+                                     int kind) {
+        Bitmap bitmap = null;
+        // 获取视频的缩略图
+        bitmap =android.media.ThumbnailUtils.createVideoThumbnail(videoPath, kind);
+        System.out.println("w"+bitmap.getWidth());
+        System.out.println("h"+bitmap.getHeight());
+        bitmap = ThumbnailUtils.extractThumbnail(bitmap, width, height,
+                ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
+        return bitmap;
+    }
+    /**
+     * 判断手机是否安装SDCard
+     *
+     * @return
+     */
+    private static boolean isSDCardMounted() {
+        return Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
+    }
+    /**
+     * 获取手机存储根目录
+     *
+     * @return
+     */
+    public static String getStoreRootPath() {
+        if (isSDCardMounted()) {
+            return Environment.getExternalStorageDirectory().getAbsolutePath();
+        } else {
+            return Environment.getDataDirectory().getAbsolutePath();
+        }
     }
 
 
@@ -209,7 +289,6 @@ public class PlayActivity extends Activity implements View.OnClickListener {
         try {
             unregisterReceiver(batteryBroadcastReceiver);
         } catch (IllegalArgumentException ex) {
-
         }
     }
 
@@ -276,7 +355,6 @@ public class PlayActivity extends Activity implements View.OnClickListener {
         if (Build.VERSION.SDK_INT >= 18) {
             newUiOptions ^= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         }
-
         getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
         //END_INCLUDE (set_ui_flags)
     }
@@ -333,4 +411,5 @@ public class PlayActivity extends Activity implements View.OnClickListener {
                 break;
         }
     }
+
 }
